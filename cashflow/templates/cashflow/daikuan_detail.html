@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% load bootstrap3 %}
+{% block content %}
+
+    <div class="col-sm-5">
+        <form  method="post" class="form">
+            {% bootstrap_form form layout="horizontal" %}
+            {% buttons %}
+                <button type="submit" class="btn btn-primary form-btn-margin">
+                    提交
+                </button>
+            {% endbuttons %}
+        </form>
+    </div>
+
+    <div class="col-sm-7">
+    {% include "cashflow/cashflow_table.html" %}
+    </div>
+{% endblock %}

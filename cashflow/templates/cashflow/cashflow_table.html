@@ -1,0 +1,20 @@
+<table class="table">
+    <thead>
+    <th>日期</th>
+    <th>项目</th>
+    <th>备注</th>
+    <th>支出与收入</th>
+    </thead>
+<tbody>
+    {% for c in cashflow %}
+       <tr>
+           <td>{{ c.dt|date:'Y-m-d H:i:s' }}</td>
+           <td>{{ c.plan }}</td>
+           <td>{{ c.remark }}</td>
+           <td>{{ c.changed_money|floatformat }}</td>
+       </tr>
+    {% endfor %}
+
+</tbody>
+
+</table>

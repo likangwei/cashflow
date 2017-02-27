@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+<table class="table">
+    <thead>
+    <th>日期</th>
+    <th>项目</th>
+    <th>备注</th>
+    <th>支出与收入</th>
+    <th>剩余金额</th>
+    </thead>
+<tbody>
+    {% for c in cashflow %}
+       <tr>
+           <td>{{ c.dt }}</td>
+           <td>{{ c.plan }}</td>
+           <td>{{ c.remark }}</td>
+           <td>{{ c.change }}</td>
+           <td>{{ c.total }}</td>
+       </tr>
+    {% endfor %}
+
+</tbody>
+
+</table>
+
+{% endblock %}

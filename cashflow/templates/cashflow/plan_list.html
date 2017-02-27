@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% load bootstrap3 %}
+{% block content %}
+<table class="table">
+    <thead>
+    <th>名称</th>
+    <th>链接</th>
+    </thead>
+<tbody>
+    {% for p in plans %}
+       <tr>
+           <td>{{ p.name }}</td>
+           <td><a href="{{ p.get_absolute_url }}">链接</a></td>
+       </tr>
+    {% endfor %}
+</tbody>
+
+</table>
+{% endblock %}
