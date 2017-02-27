@@ -12,8 +12,11 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
-
+import json
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+CONFIG_FILE = os.path.join(BASE_DIR, 'config.json')
+config = json.load(open(CONFIG_FILE))
+db = config.get('db')
 
 
 # Quick-start development settings - unsuitable for production
@@ -81,13 +84,7 @@ USE_TZ = False
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': "money",
-        'HOST': "localhost",
-        'USER': "root",
-        'PASSWORD': "root",
-    }
+    'default': db
 }
 
 
