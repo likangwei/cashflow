@@ -19,7 +19,7 @@ import cashflow.urls
 from cashflow import views
 
 urlpatterns = [
-    url(r'^$', views.index),
+    url(r'^$', views.plan_list),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^cashflow/', include(cashflow.urls, namespace='cashflow')),
 ]

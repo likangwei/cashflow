@@ -22,13 +22,24 @@ class Plan(models.Model):
         raise NotImplementedError
 
     @property
+    def link(self):
+        link = PlanLink.objects.filter(content_type=self.content_type, plan_id=self.id).first()
+        if link is None:
+            link = PlanLink.objects.create(content_type=self.content_type, plan_id=self.id)
+        return link
+
+    @property
     def content_type(self):
         return ContentType.objects.get(app_label=self._meta.app_label,
                                        model=self._meta.model_name)
 
     @property
     def cashflows(self):
-        return CashChange.objects.filter(content_type=self.content_type, plan_id=self.id)
+        return CashChange.objects.filter(plan_link=self.link)
+
+    def save(self, *args, **kwargs):
+        super(Plan, self).save(*args, **kwargs)
+        self.link
 
     def __unicode__(self):
         return self.name
@@ -61,8 +72,7 @@ class CashLoopPlan(Plan, DateLoopPlan):
         dt = cron.next()
         while self.end_date > dt:
             CashChange.objects.create(
-                content_type=self.content_type,
-                plan_id=self.id,
+                plan_link=self.link,
                 changed_money=self.cash_per_time,
                 dt=dt,
                 remark=""
@@ -109,22 +119,20 @@ class DaiKuan(Plan, DateLoopPlan):
 
     def build_has_pay(self, bj, cron):
         CashChange.objects.create(
-            content_type=self.content_type,
-            plan_id=self.id,
+            plan_link=self.link,
             changed_money=0 - self.daikuan_shoufu,
             dt=self.start_date,
             remark="首付: %d" % self.daikuan_shoufu
         )
         month_count = self.month_count
-        i = 0
+        i = -1
         for i in range(len(self.yihuanbjs)):
             pay_total = self.yihuanbjs[i]
             pay_bx = bj * self.yuelilv
             pay_bj = 0 if pay_total < pay_bx else pay_total - pay_bx
             bj -= pay_bj
             CashChange.objects.create(
-                content_type=self.content_type,
-                plan_id=self.id,
+                plan_link=self.link,
                 changed_money=0 - pay_total,
                 dt=cron.next(),
                 remark="第%d期, 剩余本金: %d. 支付本金: %d 支付本息: %d" % ((i + 1), bj, pay_bj, pay_bx)
@@ -147,8 +155,7 @@ class DaiKuan(Plan, DateLoopPlan):
             pay_bj = month_to_pay - pay_bx
             bj -= bj * self.yuelilv
             CashChange.objects.create(
-                content_type=self.content_type,
-                plan_id=self.id,
+                plan_link=self.link,
                 changed_money=0 - month_to_pay,
                 dt=cron.next(),
                 remark="第%d期, 剩余本金: %d. 支付本金: %d 支付本息: %d" % ((i), bj, pay_bj, pay_bx)
@@ -170,8 +177,7 @@ class DaiKuan(Plan, DateLoopPlan):
             bj -= yuebenjin
             lave_bj = bj
             CashChange.objects.create(
-                content_type=self.content_type,
-                plan_id=self.id,
+                plan_link=self.link,
                 changed_money=0 - pay_total,
                 dt=cron.next(),
                 remark="第%d期, 剩余本金: %d. 支付本金: %d 支付本息: %d" % ((i), lave_bj, pay_bj, pay_bx)
@@ -180,19 +186,29 @@ class DaiKuan(Plan, DateLoopPlan):
     def get_absolute_url(self):
         return reverse('cashflow:daikuan_detail', args=(self.id,))
 
-class CashChange(models.Model):
 
+class PlanLink(models.Model):
     content_type = models.ForeignKey(ContentType, verbose_name="content_type")
     plan_id = models.IntegerField("plan id")
-    changed_money = models.FloatField("支出或收入")
-    dt = models.DateTimeField('时间')
-    remark = models.CharField('备注', max_length=255)
-    # content_type = ContentType.objects.get(app_label=change_to_obj._meta.app_label,
-    #                                        model=change_to_obj._meta.model_name)
+
     @property
     def plan(self):
         model_clz = self.content_type.model_class()
         return self.content_type.get_object_for_this_type(id=self.plan_id)
+
+    class Meta:
+        unique_together = ("content_type", "plan_id")
+
+
+class CashChange(models.Model):
+    plan_link = models.ForeignKey(PlanLink, verbose_name="plan_link")
+    changed_money = models.FloatField("支出或收入")
+    dt = models.DateTimeField('时间')
+    remark = models.CharField('备注', max_length=255)
+
+    @property
+    def plan(self):
+        return self.plan_link.plan
 
     class Meta:
         ordering = ['dt']

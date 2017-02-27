@@ -1,0 +1,9 @@
+{
+  "db": {
+    "ENGINE": "django.db.backends.mysql",
+    "HOST": "localhost",
+    "PASSWORD": "root",
+    "NAME": "money",
+    "USER": "root"
+  }
+}

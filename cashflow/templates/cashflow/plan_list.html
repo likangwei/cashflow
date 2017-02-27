@@ -1,19 +1,55 @@
 {% extends "base.html" %}
 {% load bootstrap3 %}
 {% block content %}
-<table class="table">
-    <thead>
-    <th>名称</th>
-    <th>链接</th>
-    </thead>
-<tbody>
-    {% for p in plans %}
-       <tr>
-           <td>{{ p.name }}</td>
-           <td><a href="{{ p.get_absolute_url }}">链接</a></td>
-       </tr>
-    {% endfor %}
-</tbody>
 
-</table>
+<div class="row">
+    <div class="col-lg-3">
+        <div class="input-group">
+            <div>
+                <input id="checkAll" type="checkbox" > 全选
+            </div>
+            {% for link in plans %}
+            <div>
+                <span class="input-group-addon">
+                {% if link.plan.enable %}
+                    <input class="link_checkbox" type="checkbox" value="{{ link.id }}" checked>
+                {% else %}
+                    <input class="link_checkbox" type="checkbox" value="{{ link.id }}" >
+                {% endif %}
+
+                <a href="{{ link.plan.get_absolute_url }}">{{ link.plan.name }}</a>
+                </span>
+            </div>
+            {% endfor %}
+        </div><!-- /input-group -->
+    </div><!-- /.col-lg-6 -->
+
+    <div class="col-lg-9">
+            {% include "cashflow/cash_graph.html" %}
+    </div><!-- /.col-lg-6 -->
+</div><!-- /.row -->
+<script>
+
+    $("#checkAll").click(function () {
+        $(".link_checkbox").prop("checked", this.checked);
+        refresh();
+    });
+
+    $(".link_checkbox").change(function () {
+        refresh();
+    });
+
+    function refresh(){
+        checked_plans = [];
+        $(".link_checkbox").each(function(){
+            if($(this).prop("checked")){
+                checked_plans.push($(this).val());
+            }
+        });
+        draw_cashflow(checked_plans);
+    }
+    refresh();
+</script>
+
+
 {% endblock %}

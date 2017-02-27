@@ -1,4 +1,8 @@
 #coding=utf8
+
+import json
+import time
+
 from django.shortcuts import render
 from django.shortcuts import HttpResponse
 from django.http.response import HttpResponseRedirect
@@ -10,7 +14,7 @@ from django.utils import timezone
 from cashflow.models import DaiKuan
 from cashflow.models import CashChange
 from cashflow.models import CashLoopPlan
-
+from cashflow.models import PlanLink
 
 from django.shortcuts import get_object_or_404
 from django.core.urlresolvers import reverse
@@ -19,36 +23,31 @@ from cashflow.forms import DaiKuanForm
 from cashflow.forms import CashLoopForm
 
 
-def index(request):
+def cash_details(request):
     money_total = 95400
-    cashflow = []
+    plan_links = request.POST.get('plans', "[]")
+    plan_links = json.loads(plan_links)
+    ccs = CashChange.objects.filter(plan_link__id__in=plan_links).order_by('dt')
+    rst = {"success": True}
+    cashflow = rst.setdefault("datas", [])
     now = timezone.now()
-    for cc in CashChange.objects.all():
+    for cc in ccs:
         print cc.dt, type(cc.dt)
-        print now, type(now)
         if now < cc.dt:
             money_total += cc.changed_money
             cashflow.append({
                 "total": '%.2f' % money_total,
                 "change": '%.2f' % cc.changed_money,
-                "dt": cc.dt.strftime("%Y-%m-%d %H:%M:%S"),
+                "dt": cc.dt.strftime('%Y-%m-%d %H:%M:%S'),
+                "timestamp": time.mktime(cc.dt.timetuple()),
                 "remark": cc.remark,
                 "plan": cc.plan.__str__()
             })
-
-    return render(
-        request,
-        'cashflow/index.html',
-        {
-            'cashflow': cashflow
-        }
-      )
+    return JsonResponse(rst)
 
 
 def plan_list(request):
-    plans = []
-    plans.extend(DaiKuan.objects.all())
-    plans.extend(CashLoopPlan.objects.all())
+    plans = PlanLink.objects.all()
     return render(request, 'cashflow/plan_list.html', {'plans': plans})
 
 
