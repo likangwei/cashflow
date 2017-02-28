@@ -193,8 +193,11 @@ class PlanLink(models.Model):
 
     @property
     def plan(self):
-        model_clz = self.content_type.model_class()
-        return self.content_type.get_object_for_this_type(id=self.plan_id)
+        try:
+            model_clz = self.content_type.model_class()
+            return self.content_type.get_object_for_this_type(id=self.plan_id)
+        except:
+            self.delete()
 
     class Meta:
         unique_together = ("content_type", "plan_id")

@@ -4,6 +4,7 @@ from cashflow.models import Plan
 from cashflow.models import CashChange
 from cashflow.models import DaiKuan
 from cashflow.models import CashLoopPlan
+from cashflow.models import PlanLink
 admin.autodiscover()
 
 
@@ -48,6 +49,7 @@ class CashAdmin(admin.ModelAdmin):
     list_display = ('changed_money', 'time_seconds', 'remark')
 
 
+admin.site.register(PlanLink)
 admin.site.register(DaiKuan)
 admin.site.register(CashLoopPlan)
 admin.site.register(CashChange, CashAdmin)
