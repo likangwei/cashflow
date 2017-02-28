@@ -34,7 +34,6 @@ def cash_details(request):
     cashflow = rst.setdefault("datas", [])
     now = timezone.now()
     for cc in ccs:
-        print cc.dt, type(cc.dt)
         if now < cc.dt:
             money_total += cc.changed_money
             cashflow.append({
