@@ -200,6 +200,9 @@ class PlanLink(models.Model):
         except:
             self.delete()
 
+    def __unicode__(self):
+        return "link->" + self.plan.name
+
     class Meta:
         unique_together = ("content_type", "plan_id")
 
@@ -221,6 +224,7 @@ class CashChange(models.Model):
 class CashTag(models.Model):
     total = models.FloatField('当前金额', default=0)
     dt = models.DateTimeField('dt')
+
 
     class Meta:
         ordering = ('-dt', )
