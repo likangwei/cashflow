@@ -15,6 +15,7 @@ from cashflow.models import DaiKuan
 from cashflow.models import CashChange
 from cashflow.models import CashLoopPlan
 from cashflow.models import PlanLink
+from cashflow.models import CashTag
 
 from django.shortcuts import get_object_or_404
 from django.core.urlresolvers import reverse
@@ -24,7 +25,8 @@ from cashflow.forms import CashLoopForm
 
 
 def cash_details(request):
-    money_total = 95400
+    last_cash_tag = CashTag.objects.order_by("-dt").first()
+    money_total = 0 if last_cash_tag is None else last_cash_tag.total
     plan_links = request.POST.get('plans', "[]")
     plan_links = json.loads(plan_links)
     ccs = CashChange.objects.filter(plan_link__id__in=plan_links).order_by('dt')

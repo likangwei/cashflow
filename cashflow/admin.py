@@ -5,6 +5,7 @@ from cashflow.models import CashChange
 from cashflow.models import DaiKuan
 from cashflow.models import CashLoopPlan
 from cashflow.models import PlanLink
+from cashflow.models import CashTag
 admin.autodiscover()
 
 
@@ -49,7 +50,19 @@ class CashAdmin(admin.ModelAdmin):
     list_display = ('changed_money', 'time_seconds', 'remark')
 
 
+class CashTagAdmin(admin.ModelAdmin):
+    def time_seconds(self, obj):
+        return obj.dt.strftime("%Y-%m-%d %H:%M:%S")
+    time_seconds.short_name = 'dt'
+    time_seconds.empty_value_display = '???'
+    time_seconds.admin_order_field = 'dt'
+    list_filter = []
+    actions = []
+    list_display = ('total', 'time_seconds')
+
+
 admin.site.register(PlanLink)
 admin.site.register(DaiKuan)
 admin.site.register(CashLoopPlan)
 admin.site.register(CashChange, CashAdmin)
+admin.site.register(CashTag, CashTagAdmin)

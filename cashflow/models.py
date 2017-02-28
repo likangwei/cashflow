@@ -190,6 +190,7 @@ class DaiKuan(Plan, DateLoopPlan):
 class PlanLink(models.Model):
     content_type = models.ForeignKey(ContentType, verbose_name="content_type")
     plan_id = models.IntegerField("plan id")
+    parent = models.ForeignKey("self", verbose_name="父计划", null=True)
 
     @property
     def plan(self):
@@ -215,3 +216,11 @@ class CashChange(models.Model):
 
     class Meta:
         ordering = ['dt']
+
+
+class CashTag(models.Model):
+    total = models.FloatField('当前金额', default=0)
+    dt = models.DateTimeField('dt')
+
+    class Meta:
+        ordering = ('-dt', )
