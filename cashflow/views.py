@@ -26,13 +26,13 @@ from cashflow.forms import CashLoopForm
 
 def cash_details(request):
     last_cash_tag = CashTag.objects.order_by("-dt").first()
+    now = timezone.now() if last_cash_tag is None else last_cash_tag.dt
     money_total = 0 if last_cash_tag is None else last_cash_tag.total
     plan_links = request.POST.get('plans', "[]")
     plan_links = json.loads(plan_links)
     ccs = CashChange.objects.filter(plan_link__id__in=plan_links).order_by('dt')
     rst = {"success": True}
     cashflow = rst.setdefault("datas", [])
-    now = timezone.now()
     for cc in ccs:
         if now < cc.dt:
             money_total += cc.changed_money
