@@ -21,34 +21,63 @@
                 </span>
             </div>
             {% endfor %}
+            <button id="btn_build_cash_flow">生成现金流</button>
+            <button id="btn_build_cash_flow_monthly">生成每月现金流</button>
         </div><!-- /input-group -->
     </div><!-- /.col-lg-6 -->
 
     <div class="col-lg-9">
-            {% include "cashflow/cash_graph.html" %}
+            <div id="main" style="width: 1000px;height:600px;"></div>
     </div><!-- /.col-lg-6 -->
 </div><!-- /.row -->
 <script>
+    var myChart = echarts.init(document.getElementById('main'));
+
+    function draw_cashflow(plans){
+        var params = {"plans": JSON.stringify(plans)}
+        $.post("/cashflow/cash_details/", params, function(rsp){
+            if(!rsp.success){
+                alert(rsp.msg)
+            }
+            else{
+                option = getCashFlowOption(rsp.datas);
+                myChart.setOption(option);
+            }
+        }, "json");
+    }
 
     $("#checkAll").click(function () {
         $(".link_checkbox").prop("checked", this.checked);
-        refresh();
     });
 
-    $(".link_checkbox").change(function () {
-        refresh();
+    $("#btn_build_cash_flow").click(function () {
+       draw_cashflow(get_plan_ids());
     });
 
-    function refresh(){
+    $("#btn_build_cash_flow_monthly").click(function () {
+        plans = get_plan_ids();
+        var params = {"plans": JSON.stringify(plans)}
+        $.post("/cashflow/cash_change_per_month/", params, function(rsp){
+            if(!rsp.success){
+                alert(rsp.msg)
+            }
+            else{
+                option = getMonthlyCashFlowOption(rsp.data);
+                myChart.setOption(option);
+            }
+        }, "json");
+    });
+
+    function get_plan_ids(){
         checked_plans = [];
         $(".link_checkbox").each(function(){
             if($(this).prop("checked")){
                 checked_plans.push($(this).val());
             }
         });
-        draw_cashflow(checked_plans);
+        return checked_plans;
     }
-    refresh();
+
 </script>
 
 

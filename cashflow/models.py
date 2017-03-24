@@ -213,6 +213,13 @@ class CashChange(models.Model):
     dt = models.DateTimeField('时间')
     remark = models.CharField('备注', max_length=255)
 
+    def dict(self):
+        return {
+            "plan_name": self.plan_link.plan.name,
+            "change_money": self.changed_money,
+            "dt": self.dt.strftime("%Y%m%d"),
+            "remark": self.remark
+        }
     @property
     def plan(self):
         return self.plan_link.plan

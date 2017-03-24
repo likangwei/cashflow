@@ -2,7 +2,7 @@
 
 import json
 import time
-
+import datetime
 from django.shortcuts import render
 from django.shortcuts import HttpResponse
 from django.http.response import HttpResponseRedirect
@@ -45,6 +45,39 @@ def cash_details(request):
                 "plan": cc.plan.__str__()
             })
     return JsonResponse(rst)
+
+
+def cash_change_per_month(request):
+    plan_links = request.POST.get('plans', "[]")
+    plan_links = json.loads(plan_links)
+    rst = {"success": True, "msg": "", "data": []}
+    cron = "0 0 0 * *"
+    from croniter import croniter
+    croner = croniter(cron, datetime.datetime.now(), ret_type=datetime.datetime)
+    months = [croner.next() for i in range(100)]
+    for i in range(len(months)-2):
+        start, end = months[i], months[i+1]
+        ccs = CashChange.objects.filter(plan_link__id__in=plan_links,
+                                        dt__range=(start, end)).order_by('dt')
+        total, income, expenses = 0, 0, 0
+        details = []
+        for x in ccs:
+            t = x.changed_money
+            total += t
+            income += 0 if t < 0 else t
+            expenses -= 0 if t > 0 else t
+            details.append(x.dict())
+        rst["data"].append(
+            {
+                "date": start.strftime("%Y-%m"),
+                "total": total,
+                "income": income,
+                "expenses": expenses,
+                "details": details
+            }
+        )
+    return JsonResponse(rst)
+
 
 
 def plan_list(request):
