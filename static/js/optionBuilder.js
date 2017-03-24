@@ -104,8 +104,8 @@ function getMonthlyCashFlowOption(raw_datas){
 
     option = {
         "title": {
-            "text": "环比柱形图",
-            "subtext": "昨天 vs 前天",
+            "text": "现金流月份",
+            "subtext": "",
             "x": "center"
         },
         "tooltip": {
@@ -196,7 +196,7 @@ function getMonthlyCashFlowOption(raw_datas){
         ],
         "series": [
             {
-                "name": "昨日",
+                "name": "剩余",
                 "type": "bar",
                 "stack": "总量",
                 "barMaxWidth": 50,
@@ -220,7 +220,7 @@ function getMonthlyCashFlowOption(raw_datas){
                 "data": total_lst,
             },
             {
-                "name": "人流减少",
+                "name": "支出",
                 "type": "bar",
                 "stack": "总量",
                 "itemStyle": {

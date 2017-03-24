@@ -58,7 +58,9 @@ def cash_change_per_month(request):
     for i in range(len(months)-2):
         start, end = months[i], months[i+1]
         ccs = CashChange.objects.filter(plan_link__id__in=plan_links,
-                                        dt__range=(start, end)).order_by('dt')
+                                        dt__gte=start,
+                                        dt__lt=end,
+                                        ).order_by('dt')
         total, income, expenses = 0, 0, 0
         details = []
         for x in ccs:
