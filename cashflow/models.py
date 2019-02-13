@@ -153,7 +153,7 @@ class DaiKuan(Plan, DateLoopPlan):
         for i in range(month_idx + 1, self.month_count + 1):
             pay_bx = bj * self.yuelilv
             pay_bj = month_to_pay - pay_bx
-            bj -= bj * self.yuelilv
+            bj -= pay_bj
             CashChange.objects.create(
                 plan_link=self.link,
                 changed_money=0 - month_to_pay,
